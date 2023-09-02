@@ -24,23 +24,24 @@ async def main(record_len):
 
     for device in devices:
         if device.name is not None and "Polar" in device.name:
-            polar_device_found = True
-            polar_device = PolarH10(device)
-            await polar_device.connect()
-            await polar_device.get_device_info()
-            await polar_device.print_device_info()
+            try:
+                polar_device_found = True
+                polar_device = PolarH10(device)
+                await polar_device.connect()
+                await polar_device.get_device_info()
+                await polar_device.print_device_info()
 
-            await polar_device.start_acc_stream()
-            await polar_device.start_hr_stream()
-            for i in tqdm(range(record_len), desc='Recording...'):
-                await asyncio.sleep(1)
-            await polar_device.stop_acc_stream()
-            await polar_device.stop_hr_stream()
+                await polar_device.start_acc_stream()
+                await polar_device.start_hr_stream()
+                for i in tqdm(range(record_len), desc='Recording...'):
+                    await asyncio.sleep(1)
+                await polar_device.stop_acc_stream()
+                await polar_device.stop_hr_stream()
 
-            acc_data = polar_device.get_acc_data()
-            ibi_data = polar_device.get_ibi_data()
-
-            await polar_device.disconnect()
+                acc_data = polar_device.get_acc_data()
+                ibi_data = polar_device.get_ibi_data()
+            finally:
+                await polar_device.disconnect()
     
     if not polar_device_found:
         print("No Polar device found")
